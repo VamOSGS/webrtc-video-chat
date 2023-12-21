@@ -47,13 +47,14 @@ export default function VideoChat() {
   const callInputRef = useRef();
   const toast = useToast();
   const [isCallStarted, setIsCallStarted] = useState(false);
-
+  const [isWebCamStarted, setIsWebCamStarted] = useState(false);
   const onWebCamStart = useCallback(async () => {
     localStream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
     });
     remoteStream = new MediaStream();
+    setIsWebCamStarted(true);
 
     // Push tracks from local stream to peer connection
     localStream.getTracks().forEach((track) => {
@@ -69,10 +70,6 @@ export default function VideoChat() {
 
     localVideoRef.current.srcObject = localStream;
     remoteVideoRef.current.srcObject = remoteStream;
-
-    callButtonRef.current.disabled = false;
-    answerButtonRef.current.disabled = false;
-    webcamButtonRef.current.disabled = true;
   }, []);
 
   const onCall = useCallback(async () => {
@@ -193,9 +190,6 @@ export default function VideoChat() {
             muted
             style={{ width: 400, height: 300 }}
           />
-          <Button ref={webcamButtonRef} onClick={onWebCamStart}>
-            Start webcam
-          </Button>
         </Box>
         <Box>
           <Text>Remote Video</Text>
@@ -209,9 +203,11 @@ export default function VideoChat() {
       </VStack>
       <Box maxW='400px' margin='auto'>
         <HStack>
-          <Button ref={callButtonRef} onClick={onCall}>
-            Create Call (offer)
-          </Button>
+          {!isCallStarted && isWebCamStarted && (
+            <Button ref={callButtonRef} onClick={onCall}>
+              Create Call (offer)
+            </Button>
+          )}
           {callLink && (
             <Button
               onClick={() => {
@@ -231,26 +227,38 @@ export default function VideoChat() {
           )}
         </HStack>
         <HStack mt={4}>
-          <Input ref={callInputRef} placeholder='Paste the call id' />
-          <Button
-            px={6}
-            colorScheme='green'
-            ref={answerButtonRef}
-            onClick={onAnswer}
-            isDisabled={isCallStarted}
-          >
-            Connect
-          </Button>
-          <Button
-            px={6}
-            onClick={() => {
-              window.location.reload();
-            }}
-            isDisabled={!isCallStarted}
-            colorScheme='red'
-          >
-            Hangup
-          </Button>
+          <Input
+            maxW='200px'
+            ref={callInputRef}
+            placeholder='Paste the call id'
+          />
+          {!isWebCamStarted ? (
+            <Button px={2} ref={webcamButtonRef} onClick={onWebCamStart}>
+              Start Camera
+            </Button>
+          ) : (
+            <Button
+              px={6}
+              colorScheme='green'
+              ref={answerButtonRef}
+              onClick={onAnswer}
+              isDisabled={isCallStarted || !isWebCamStarted}
+            >
+              Connect
+            </Button>
+          )}
+          {isCallStarted && (
+            <Button
+              px={6}
+              onClick={() => {
+                window.location.reload();
+              }}
+              isDisabled={!isCallStarted}
+              colorScheme='red'
+            >
+              Hangup
+            </Button>
+          )}
         </HStack>
       </Box>
     </Container>
