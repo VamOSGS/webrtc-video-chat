@@ -188,7 +188,7 @@ export default function VideoChat() {
             autoPlay
             playsInline
             muted
-            style={{ width: 400, height: 300 }}
+            style={{ width: 400, height: 300, transform: 'rotateY(180deg)' }}
           />
         </Box>
         <Box>
@@ -197,7 +197,7 @@ export default function VideoChat() {
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            style={{ width: 400, height: 300 }}
+            style={{ width: 400, height: 300, transform: 'rotateY(180deg)' }}
           />
         </Box>
       </VStack>
